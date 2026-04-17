@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Beatly — Cardiovascular Assessment Engine — Technical Documentation</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #ffffff;
+    --text: #1a1a2e;
+    --text-secondary: #555;
+    --accent: #4f46e5;
+    --accent-light: #e0e7ff;
+    --success: #059669;
+    --warning: #d97706;
+    --danger: #dc2626;
+    --border: #e5e7eb;
+    --surface: #f8fafc;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', 'Inter', -apple-system, sans-serif;
+    font-size: 11pt;
+    line-height: 1.7;
+    color: var(--text);
+    background: var(--bg);
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 48px;
+  }
+
+  @media print {
+    body { padding: 20px 30px; font-size: 10pt; }
+    .page-break { page-break-before: always; }
+    .no-print { display: none; }
+    h1, h2, h3 { page-break-after: avoid; }
+    table, .flow-diagram, .arch-diagram { page-break-inside: avoid; }
+  }
+
+  /* ── Typography ── */
+  h1 {
+    font-family: 'Inter', sans-serif;
+    font-size: 28pt;
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1.1;
+    margin-bottom: 8px;
+  }
+
+  h2 {
+    font-family: 'Inter', sans-serif;
+    font-size: 18pt;
+    font-weight: 700;
+    color: var(--text);
+    margin-top: 36px;
+    margin-bottom: 12px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid var(--accent);
+  }
+
+  h3 {
+    font-family: 'Inter', sans-serif;
+    font-size: 13pt;
+    font-weight: 700;
+    color: var(--accent);
+    margin-top: 24px;
+    margin-bottom: 8px;
+  }
+
+  h4 {
+    font-size: 11pt;
+    font-weight: 700;
+    margin-top: 16px;
+    margin-bottom: 4px;
+  }
+
+  p { margin-bottom: 10px; }
+
+  .subtitle {
+    font-size: 13pt;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+  }
+
+  .version-info {
+    font-size: 9pt;
+    color: var(--text-secondary);
+    margin-bottom: 32px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 16px;
+  }
+
+  /* ── Lists ── */
+  ul, ol {
+    margin: 8px 0 12px 20px;
+  }
+
+  li {
+    margin-bottom: 4px;
+  }
+
+  li strong {
+    color: var(--accent);
+  }
+
+  /* ── Code ── */
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5pt;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+
+  pre {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9pt;
+    background: #1e1e2e;
+    color: #cdd6f4;
+    padding: 14px 18px;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 10px 0 16px;
+    line-height: 1.5;
+  }
+
+  /* ── Tables ── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0 20px;
+    font-size: 10pt;
+  }
+
+  th, td {
+    border: 1px solid var(--border);
+    padding: 8px 12px;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  th {
+    background: var(--accent);
+    color: white;
+    font-weight: 600;
+    font-size: 9.5pt;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  tr:nth-child(even) { background: var(--surface); }
+
+  /* ── Callouts ── */
+  .callout {
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin: 12px 0 16px;
+    border-left: 4px solid;
+  }
+
+  .callout-info { background: #eff6ff; border-color: #3b82f6; }
+  .callout-success { background: #ecfdf5; border-color: var(--success); }
+  .callout-warning { background: #fffbeb; border-color: var(--warning); }
+  .callout-danger { background: #fef2f2; border-color: var(--danger); }
+
+  .callout strong { display: block; margin-bottom: 4px; }
+
+  /* ── Flow Diagrams ── */
+  .flow-diagram {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    margin: 16px 0 24px;
+    font-size: 9.5pt;
+  }
+
+  .flow-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .flow-box {
+    padding: 10px 16px;
+    border-radius: 10px;
+    text-align: center;
+    font-weight: 600;
+    min-width: 140px;
+    max-width: 200px;
+    line-height: 1.35;
+  }
+
+  .flow-start { background: var(--accent); color: white; border-radius: 24px; }
+  .flow-process { background: var(--accent-light); color: var(--accent); border: 1.5px solid var(--accent); }
+  .flow-decision { background: #fef3c7; color: #92400e; border: 1.5px solid #f59e0b; transform: rotate(0deg); border-radius: 4px; }
+  .flow-output { background: #d1fae5; color: #065f46; border: 1.5px solid var(--success); border-radius: 24px; }
+  .flow-data { background: #fce7f3; color: #9d174d; border: 1.5px solid #ec4899; }
+  .flow-end { background: #1e1e2e; color: white; border-radius: 24px; }
+
+  .flow-arrow {
+    font-size: 18pt;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .flow-arrow-down::after { content: "↓"; }
+  .flow-arrow-right::after { content: "→"; }
+  .flow-arrow-branch { font-size: 8pt; color: var(--text-secondary); font-style: italic; }
+
+  /* ── Architecture Diagram ── */
+  .arch-diagram {
+    display: grid;
+    grid-template-columns: 1fr 60px 1fr;
+    gap: 12px;
+    margin: 16px 0 24px;
+    align-items: start;
+  }
+
+  .arch-column {
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .arch-header {
+    background: var(--accent);
+    color: white;
+    padding: 8px 14px;
+    font-weight: 700;
+    text-align: center;
+    font-size: 10pt;
+  }
+
+  .arch-item {
+    padding: 8px 14px;
+    border-bottom: 1px solid var(--border);
+    font-size: 9.5pt;
+  }
+
+  .arch-item:last-child { border-bottom: none; }
+
+  .arch-connector {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding-top: 40px;
+    font-size: 8pt;
+    color: var(--text-secondary);
+  }
+
+  .arch-connector span {
+    font-size: 22pt;
+    color: var(--accent);
+  }
+
+  /* ── Badge ── */
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 8pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .badge-green { background: #d1fae5; color: #065f46; }
+  .badge-yellow { background: #fef3c7; color: #92400e; }
+  .badge-red { background: #fecaca; color: #991b1b; }
+  .badge-blue { background: #dbeafe; color: #1e40af; }
+  .badge-purple { background: #e0e7ff; color: #4338ca; }
+
+  /* ── TOC ── */
+  .toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin: 20px 0 32px;
+  }
+
+  .toc h3 { margin-top: 0; color: var(--text); }
+
+  .toc ol {
+    margin: 8px 0 0 20px;
+  }
+
+  .toc li {
+    margin-bottom: 3px;
+  }
+
+  .toc a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .toc a:hover { text-decoration: underline; }
+
+  /* ── File tree ── */
+  .file-tree {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9pt;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 14px 18px;
+    border-radius: 8px;
+    margin: 10px 0 16px;
+    line-height: 1.6;
+  }
+
+  .file-tree .dir { color: var(--accent); font-weight: 600; }
+  .file-tree .file { color: var(--text); }
+  .file-tree .new { color: var(--success); font-weight: 600; }
+  .file-tree .modified { color: var(--warning); font-weight: 600; }
+
+  hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 24px 0;
+  }
+
+  .print-btn {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 24px;
+    font-weight: 700;
+    font-size: 11pt;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(79,70,229,0.4);
+    z-index: 100;
+  }
+  .print-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 28px rgba(79,70,229,0.5); }
+</style>
+</head>
+<body>
+
+<button class="print-btn no-print" onclick="window.print()">📄 Save as PDF</button>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- COVER -->
+<!-- ═══════════════════════════════════════════════════ -->
+
+<h1>Beatly</h1>
+<p class="subtitle">Data-Driven Cardiovascular Assessment Engine — Technical Documentation</p>
+<div class="version-info">
+  Version 2.0 &nbsp;|&nbsp; April 2026 &nbsp;|&nbsp; Architecture &bull; Data Flow &bull; Clinical Standards &bull; API Reference
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- TABLE OF CONTENTS -->
+<!-- ═══════════════════════════════════════════════════ -->
+
+<div class="toc">
+  <h3>Table of Contents</h3>
+  <ol>
+    <li><a href="#overview">System Overview</a></li>
+    <li><a href="#architecture">Architecture &amp; Technology Stack</a></li>
+    <li><a href="#project-structure">Project Structure</a></li>
+    <li><a href="#data-flow">End-to-End Data Flow</a></li>
+    <li><a href="#dynamic-questions">Dynamic Questioning Engine</a></li>
+    <li><a href="#clinical-data">Clinical Data Integration</a></li>
+    <li><a href="#clinical-thresholds">Clinical Thresholds &amp; Standards</a></li>
+    <li><a href="#cross-signal">Cross-Signal Pattern Detection</a></li>
+    <li><a href="#risk-engine">Risk Scoring Engine</a></li>
+    <li><a href="#output-system">Personalized Output System</a></li>
+    <li><a href="#frontend">Frontend UI/UX Architecture</a></li>
+    <li><a href="#api-reference">API Reference</a></li>
+    <li><a href="#fallback">Offline Fallback Engine</a></li>
+    <li><a href="#config">Configuration &amp; Deployment</a></li>
+    <li><a href="#changelog">Changelog (v1 → v2)</a></li>
+  </ol>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- 1. SYSTEM OVERVIEW -->
+<!-- ═══════════════════════════════════════════════════ -->
+
+<h2 id="overview">1. System Overview</h2>
+
+<p>Beatly is a <strong>data-driven cardiovascular assessment engine</strong> that generates personalized heart health insights grounded in real medical thresholds from <strong>WHO, AHA/ACC, ADA, and ATP-III</strong> published standards.</p>
+
+<h3>Core Design Principles</h3>
+<table>
+  <tr><th>Principle</th><th>Implementation</th></tr>
+  <tr><td><strong>Data-Backed</strong></td><td>Every diagnostic conclusion maps to a published clinical guideline threshold</td></tr>
+  <tr><td><strong>Adaptive</strong></td><td>Questions change dynamically based on previous answers</td></tr>
+  <tr><td><strong>Personalized</strong></td><td>Small input changes produce meaningfully different outputs</td></tr>
+  <tr><td><strong>Transparent</strong></td><td>Confidence scores, citations, and causal explanations for every finding</td></tr>
+  <tr><td><strong>Resilient</strong></td><td>Full offline fallback engine mirrors backend logic client-side</td></tr>
+</table>
+
+<h3>What the System Does NOT Do</h3>
+<ul>
+  <li>❌ Give generic or template-based advice</li>
+  <li>❌ Repeat the same outputs regardless of input</li>
+  <li>❌ Ask fixed/static questions</li>
+  <li>❌ Generate conclusions without data backing</li>
+  <li>❌ Diagnose medical conditions (awareness tool only)</li>
+</ul>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- 2. ARCHITECTURE -->
+<!-- ═══════════════════════════════════════════════════ -->
+
+<h2 id="architecture" class="page-break">2. Architecture &amp; Technology Stack</h2>
+
+<div class="arch-diagram">
+  <div class="arch-column">
+    <div class="arch-header">🖥️ Frontend (React + Vite)</div>
+    <div class="arch-item"><strong>App.jsx</strong> — Main orchestrator, screen state machine</div>
+    <div class="arch-item"><strong>questionEngine.js</strong> — Dynamic question path builder</div>
+    <div class="arch-item"><strong>signalAnalyzer.js</strong> — Client-side pattern detection</div>
+    <div class="arch-item"><strong>fallbackEngine.js</strong> — Full offline risk assessment</div>
+    <div class="arch-item"><strong>illustrations.jsx</strong> — ECG animations, medical glyphs</div>
+    <div class="arch-item"><strong>scene3d.jsx</strong> — Three.js background scene</div>
+    <div class="arch-item"><strong>data.js</strong> — Questions, clinical fields, thresholds</div>
+  </div>
+
+  <div class="arch-connector">
+    <span>⟷</span>
+    REST API<br>(JSON)
+  </div>
+
+  <div class="arch-column">
+    <div class="arch-header">⚙️ Backend (FastAPI + Python)</div>
+    <div class="arch-item"><strong>main.py</strong> — API endpoints (/predict, /refine, /simulate)</div>
+    <div class="arch-item"><strong>models.py</strong> — HeartRiskEngine (stacked ML ensemble)</div>
+    <div class="arch-item"><strong>clinical_interpreter.py</strong> — Clinical threshold logic</div>
+    <div class="arch-item"><strong>config.py</strong> — WHO/AHA/ADA threshold constants</div>
+    <div class="arch-item"><strong>schemas.py</strong> — Pydantic request/response validation</div>
+    <div class="arch-item"><strong>data_generator.py</strong> — Synthetic dataset generation</div>
+    <div class="arch-item"><strong>database.py</strong> — SQLite history storage</div>
+  </div>
+</div>
+
+<h3>Technology Stack</h3>
+<table>
+  <tr><th>Layer</th><th>Technology</th><th>Purpose</th></tr>
+  <tr><td>Frontend</td><td>React 18, Vite 7</td><td>Component UI, HMR dev server</td></tr>
+  <tr><td>Animation</td><td>Framer Motion, Three.js</td><td>Medical-grade animations, 3D scene</td></tr>
+  <tr><td>Styling</td><td>Vanilla CSS</td><td>Design system with CSS custom properties</td></tr>
+  <tr><td>Backend</td><td>Python, FastAPI</td><td>REST API, async request handling</td></tr>
+  <tr><td>ML Pipeline</td><td>scikit-learn, XGBoost, LightGBM, CatBoost</td><td>Stacked ensemble risk prediction</td></tr>
+  <tr><td>Database</td><td>SQLite</td><td>Assessment history storage</td></tr>
+  <tr><td>Validation</td><td>Pydantic v2</td><td>Request/response schema validation</td></tr>
+</table>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- 3. PROJECT STRUCTURE -->
+<!-- ═══════════════════════════════════════════════════ -->
+
+<h2 id="project-structure">3. Project Structure</h2>
+
+<div class="file-tree">
+<span class="dir">do/</span><br>
+├── <span class="dir">client/</span><br>
+│   ├── index.html <span class="modified">[MODIFIED]</span><br>
+│   └── <span class="dir">src/</span><br>
+│       ├── App.jsx <span class="modified">[MODIFIED — major rewrite]</span><br>
+│       ├── data.js <span class="modified">[MODIFIED — dynamic questions + clinical fields]</span><br>
+│       ├── questionEngine.js <span class="new">[NEW — adaptive question path]</span><br>
+│       ├── signalAnalyzer.js <span class="new">[NEW — cross-signal pattern detection]</span><br>
+│       ├── fallbackEngine.js <span class="modified">[MODIFIED — complete rewrite]</span><br>
+│       ├── illustrations.jsx <span class="modified">[MODIFIED — ECG/medical visuals]</span><br>
+│       ├── scene3d.jsx <span class="modified">[MODIFIED — palette update]</span><br>
+│       ├── styles.css <span class="modified">[MODIFIED — complete UI overhaul]</span><br>
+│       ├── lib.api.js<br>
+│       ├── pdf.js<br>
+│       └── main.jsx<br>
+├── <span class="dir">ml_engine/</span><br>
+│   └── <span class="dir">app/</span><br>
+│       ├── main.py<br>
+│       ├── models.py <span class="modified">[MODIFIED — pattern detection + ML engine]</span><br>
+│       ├── config.py <span class="modified">[MODIFIED — clinical thresholds]</span><br>
+│       ├── clinical_interpreter.py <span class="new">[NEW — threshold interpreter]</span><br>
+│       ├── schemas.py <span class="modified">[MODIFIED — clinical fields]</span><br>
+│       ├── data_generator.py <span class="modified">[MODIFIED — expanded dataset]</span><br>
+│       └── database.py <span class="modified">[MODIFIED — schema update]</span><br>
+└── <span class="dir">ml_engine/data/</span><br>
+    └── heart_risk_history.db<br>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- 4. DATA FLOW -->
+<!-- ═══════════════════════════════════════════════════ -->
+
+<h2 id="data-flow" class="page-break">4. End-to-End Data Flow</h2>
+
+<h3>4.1 Complete Assessment Flow</h3>
+
+<div class="flow-diagram">
+  <div class="flow-box flow-start">User Opens App</div>
+  <div class="flow-arrow flow-arrow-down"></div>
+  <div class="flow-box flow-process">Splash Screen<br><small>3s auto-advance</small></div>
+  <div class="flow-arrow flow-arrow-down"></div>
+  <div class="flow-box flow-process">Landing Screen<br><small>Name + Consent</small></div>
+  <div class="flow-arrow flow-arrow-down"></div>
+  <div class="flow-box flow-decision">Dynamic Questions<br><small>11 adaptive questions</small></div>
+  <div class="flow-arrow flow-arrow-down"></div>
+  <div class="flow-box flow-data">Clinical Data (Optional)<br><small>BP, Cholesterol, Glucose, etc.</small></div>
+  <div class="flow-arrow flow-arrow-down"></div>
+  <div class="flow-row">
+    <div class="flow-box flow-process">API Call<br><small>POST /predict</small></div>
+    <span class="flow-arrow-branch">fails →</span>
+    <div class="flow-box flow-data">Offline Fallback<br><small>fallbackEngine.js</small></div>
+  </div>
+  <div class="flow-arrow flow-arrow-down"></div>
+  <div class="flow-box flow-output">Results Page<br><small>5 tabs of personalized insight</small></div>
+  <div class="flow-arrow flow-arrow-down"></div>
+  <div class="flow-box flow-decision">Follow-up Questions<br><small>Symptom refinement</small></div>
+  <div class="flow-arrow flow-arrow-down"></div>
+  <div class="flow-box flow-end">Refined Assessment<br><small>Updated risk + confirmed signals</small></div>
+</div>
+
+<h3>4.2 Backend Processing Pipeline</h3>
+
+<div class="flow-diagram">
+  <div class="flow-box flow-start">Payload Received</div>
+  <div class="flow-arrow flow-arrow-down"></div>
+  <div class="flow-box flow-process">Pydantic Validation<br><small>schemas.py</small></div>
+  <div class="flow-arrow flow-arrow-down"></div>
+  <div class="flow-row">
+    <div class="flow-box flow-process">ML Ensemble<br><small>XGBoost + LightGBM<br>+ CatBoost + RF + LR</small></div>
+    <div class="flow-box flow-process">Rule Engine<br><small>Clinical thresholds</small></div>
+    <div class="flow-box flow-process">Lifestyle Scorer<br><small>Points-based</small></div>
+    <div class="flow-box flow-process">Pattern Detector<br><small>12 cross-signal rules</small></div>
+  </div>
+  <div class="flow-arrow flow-arrow-down"></div>
+  <div class="flow-box flow-decision">Dynamic Weight Fusion<br><small>Weights shift based on confidence</small></div>
+  <div class="flow-arrow flow-arrow-down"></div>
+  <div class="flow-box flow-process">Clinical Interpreter<br><small>AHA/ADA/WHO thresholds</small></div>
+  <div class="flow-arrow flow-arrow-down"></div>
+  <div class="flow-box flow-process">Narrative Generator<br><small>Primary/Secondary issues</small></div>
+  <div class="flow-arrow flow-arrow-down"></div>
+  <div class="flow-box flow-output">Structured JSON Response<br><small>~40 fields of personalized data</small></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- 5. DYNAMIC QUESTIONING -->
+<!-- ═══════════════════════════════════════════════════ -->
+
+<h2 id="dynamic-questions" class="page-break">5. Dynamic Questioning Engine</h2>
+
+<p>The questioning system adapts based on user inputs. The question path is rebuilt on every answer, with conditional branches injected based on detected signals.</p>
+
+<h3>5.1 Base Questions (Always Asked)</h3>
+<table>
+  <tr><th>#</th><th>Question ID</th><th>Type</th><th>Category</th><th>Clinical Basis</th></tr>
+  <tr><td>1</td><td><code>age</code></td><td>Number</td><td>Vitals</td><td>Strongest non-modifiable CVD risk factor</td></tr>
+  <tr><td>2</td><td><code>gender</code></td><td>Choice</td><td>Vitals</td><td>Hormonal/anatomical risk differences</td></tr>
+  <tr><td>3</td><td><code>smoking</code></td><td>Choice</td><td>Vitals</td><td>Strongest modifiable CVD risk factor (WHO)</td></tr>
+  <tr><td>4</td><td><code>diabetes</code></td><td>Choice</td><td>Vitals</td><td>Changes CVD risk equation fundamentally</td></tr>
+  <tr><td>5</td><td><code>family_history</code></td><td>Choice</td><td>Vitals</td><td>Independent risk factor (premature CVD)</td></tr>
+  <tr><td>6</td><td><code>activity_level</code></td><td>Choice</td><td>Activity</td><td>WHO: 150+ min/week guideline</td></tr>
+  <tr><td>7</td><td><code>sitting</code></td><td>Choice</td><td>Activity</td><td>Independent mortality risk (Lancet 2016)</td></tr>
+  <tr><td>8</td><td><code>diet</code></td><td>Choice</td><td>Lifestyle</td><td>Influences cholesterol, BP, glucose</td></tr>
+  <tr><td>9</td><td><code>exertion_response</code></td><td>Choice</td><td>Activity</td><td>Cardiac reserve indicator</td></tr>
+</table>
+
+<h3>5.2 Conditional Branching Logic</h3>
+
+<div class="flow-diagram">
+  <div class="flow-box flow-start">After Base Questions</div>
+  <div class="flow-arrow flow-arrow-down"></div>
+  <div class="flow-box flow-decision">Activity = Low AND Sitting = High?</div>
+  <div class="flow-arrow flow-arrow-down"></div>
+  <div class="flow-row">
+    <div>
+      <div class="flow-arrow-branch">YES</div>
+      <div class="flow-box flow-data">High-Stress Framing<br><small>"Chronic stress elevates cortisol..."</small></div>
+    </div>
+    <div>
+      <div class="flow-arrow-branch">NO</div>
+      <div class="flow-box flow-process">Standard Stress Question</div>
+    </div>
+  </div>
+  <div class="flow-arrow flow-arrow-down"></div>
+  <div class="flow-box flow-decision">Stress = High?</div>
+  <div class="flow-arrow flow-arrow-down"></div>
+  <div class="flow-row">
+    <div>
+      <div class="flow-arrow-branch">YES</div>
+      <div class="flow-box flow-data">Deep Sleep Probe<br><small>"Sleep is when cardiovascular recovery occurs..."</small></div>
+    </div>
+    <div>
+      <div class="flow-arrow-branch">NO</div>
+      <div class="flow-box flow-process">Standard Sleep Question</div>
+    </div>
+  </div>
+</div>
+
+<div class="callout callout-info">
+  <strong>💡 How it works:</strong>
+  The <code>questionEngine.js</code> module calls <code>buildQuestionPath(form)</code> after every answer. It concatenates the base questions with conditional blocks triggered by the user's current answers. The path is deduplicated by question ID, and <code>getNextQuestion(form)</code> returns the first unanswered question in the built path.
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- 6. CLINICAL DATA -->
+<!-- ═══════════════════════════════════════════════════ -->
+
+<h2 id="clinical-data">6. Clinical Data Integration</h2>
+
+<p>After answering lifestyle questions, users may optionally enter clinical lab values. Every field includes reference standards and helper text.</p>
+
+<h3>6.1 Clinical Input Fields</h3>
+<table>
+  <tr><th>Field</th><th>Unit</th><th>Range</th><th>Standard Body</th></tr>
+  <tr><td>Systolic BP</td><td>mmHg</td><td>80–240</td><td>AHA/ACC 2017</td></tr>
+  <tr><td>Diastolic BP</td><td>mmHg</td><td>40–160</td><td>AHA/ACC 2017</td></tr>
+  <tr><td>Total Cholesterol</td><td>mg/dL</td><td>90–400</td><td>ATP-III</td></tr>
+  <tr><td>HDL Cholesterol</td><td>mg/dL</td><td>15–100</td><td>AHA</td></tr>
+  <tr><td>LDL Cholesterol</td><td>mg/dL</td><td>40–300</td><td>ATP-III</td></tr>
+  <tr><td>Fasting Glucose</td><td>mg/dL</td><td>50–400</td><td>ADA</td></tr>
+  <tr><td>Triglycerides</td><td>mg/dL</td><td>30–600</td><td>AHA</td></tr>
+</table>
+
+<h3>6.2 Confidence Impact</h3>
+<p>Clinical data presence directly increases the assessment's confidence score:</p>
+<table>
+  <tr><th>Data Available</th><th>Confidence</th><th>Weight Distribution</th></tr>
+  <tr>
+    <td>Lifestyle only</td>
+    <td><span class="badge badge-yellow">30%</span></td>
+    <td>ML 34% · Rule 22% · Lifestyle 28% · Personalization 16%</td>
+  </tr>
+  <tr>
+    <td>+ Some lab values</td>
+    <td><span class="badge badge-blue">45–69%</span></td>
+    <td>ML 38% · Rule 28% · Lifestyle 20% · Personalization 14%</td>
+  </tr>
+  <tr>
+    <td>+ Full lab panel</td>
+    <td><span class="badge badge-green">70–100%</span></td>
+    <td>ML 42% · Rule 30% · Lifestyle 16% · Personalization 12%</td>
+  </tr>
+</table>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- 7. CLINICAL THRESHOLDS -->
+<!-- ═══════════════════════════════════════════════════ -->
+
+<h2 id="clinical-thresholds" class="page-break">7. Clinical Thresholds &amp; Standards</h2>
+
+<h3>7.1 Blood Pressure (AHA/ACC 2017 Guidelines)</h3>
+<table>
+  <tr><th>Category</th><th>Systolic (mmHg)</th><th>Diastolic (mmHg)</th><th>Severity Score</th></tr>
+  <tr><td><span class="badge badge-green">Normal</span></td><td>&lt;120</td><td>&lt;80</td><td>0.00</td></tr>
+  <tr><td><span class="badge badge-yellow">Elevated</span></td><td>120–129</td><td>&lt;80</td><td>0.20</td></tr>
+  <tr><td><span class="badge badge-yellow">Stage 1 HTN</span></td><td>130–139</td><td>80–89</td><td>0.45</td></tr>
+  <tr><td><span class="badge badge-red">Stage 2 HTN</span></td><td>≥140</td><td>≥90</td><td>0.72</td></tr>
+  <tr><td><span class="badge badge-red">Crisis</span></td><td>≥180</td><td>≥120</td><td>0.95</td></tr>
+</table>
+
+<h3>7.2 Cholesterol (ATP-III / AHA Guidelines)</h3>
+<table>
+  <tr><th>Marker</th><th>Category</th><th>Range (mg/dL)</th><th>Severity</th></tr>
+  <tr><td rowspan="3">Total Cholesterol</td><td><span class="badge badge-green">Desirable</span></td><td>&lt;200</td><td>0.00</td></tr>
+  <tr><td><span class="badge badge-yellow">Borderline</span></td><td>200–239</td><td>0.35</td></tr>
+  <tr><td><span class="badge badge-red">High</span></td><td>≥240</td><td>0.70</td></tr>
+  <tr><td rowspan="3">HDL (Good)</td><td><span class="badge badge-red">Low (risk)</span></td><td>&lt;40</td><td>0.60</td></tr>
+  <tr><td><span class="badge badge-yellow">Moderate</span></td><td>40–59</td><td>0.20</td></tr>
+  <tr><td><span class="badge badge-green">Protective</span></td><td>≥60</td><td>0.00</td></tr>
+  <tr><td rowspan="4">LDL (Bad)</td><td><span class="badge badge-green">Optimal</span></td><td>&lt;100</td><td>0.00</td></tr>
+  <tr><td><span class="badge badge-yellow">Near-Optimal</span></td><td>100–129</td><td>0.15</td></tr>
+  <tr><td><span class="badge badge-yellow">Borderline</span></td><td>130–159</td><td>0.40</td></tr>
+  <tr><td><span class="badge badge-red">High</span></td><td>≥160</td><td>0.65</td></tr>
+</table>
+
+<h3>7.3 Fasting Glucose (ADA Guidelines)</h3>
+<table>
+  <tr><th>Category</th><th>Range (mg/dL)</th><th>Severity</th></tr>
+  <tr><td><span class="badge badge-green">Normal</span></td><td>&lt;100</td><td>0.00</td></tr>
+  <tr><td><span class="badge badge-yellow">Prediabetes</span></td><td>100–125</td><td>0.40</td></tr>
+  <tr><td><span class="badge badge-red">Diabetes</span></td><td>≥126</td><td>0.80</td></tr>
+</table>
+
+<h3>7.4 Triglycerides (AHA Guidelines)</h3>
+<table>
+  <tr><th>Category</th><th>Range (mg/dL)</th><th>Severity</th></tr>
+  <tr><td><span class="badge badge-green">Normal</span></td><td>&lt;150</td><td>0.00</td></tr>
+  <tr><td><span class="badge badge-yellow">Borderline</span></td><td>150–199</td><td>0.30</td></tr>
+  <tr><td><span class="badge badge-red">High</span></td><td>≥200</td><td>0.55</td></tr>
+  <tr><td><span class="badge badge-red">Very High</span></td><td>≥500</td><td>0.85</td></tr>
+</table>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- 8. CROSS-SIGNAL PATTERNS -->
+<!-- ═══════════════════════════════════════════════════ -->
+
+<h2 id="cross-signal" class="page-break">8. Cross-Signal Pattern Detection</h2>
+
+<p>The system detects <strong>12 compound health patterns</strong> by analyzing combinations of user inputs. Each pattern has a severity score, causal explanation, trajectory projection, and targeted action with a timeline.</p>
+
+<h3>8.1 Pattern Definitions</h3>
+<table>
+  <tr><th>Pattern</th><th>Trigger Signals</th><th>Severity</th><th>Research Basis</th></tr>
+  <tr>
+    <td><strong>Smoking + Hypertension Compound</strong></td>
+    <td>smoking=yes AND systolic≥130</td>
+    <td><span class="badge badge-red">0.88</span></td>
+    <td>WHO Global Burden of Disease — 4–6x CVD risk</td>
+  </tr>
+  <tr>
+    <td><strong>Vascular-Stress Compound</strong></td>
+    <td>systolic≥140 AND stress=high</td>
+    <td><span class="badge badge-red">0.82</span></td>
+    <td>Framingham Heart Study — 2–3x stroke risk</td>
+  </tr>
+  <tr>
+    <td><strong>Sedentary-Metabolic</strong></td>
+    <td>activity=low AND sitting=high AND diet=frequent</td>
+    <td><span class="badge badge-red">0.78</span></td>
+    <td>WHO — metabolic syndrome within 3–5 years</td>
+  </tr>
+  <tr>
+    <td><strong>Diabetic Sedentary</strong></td>
+    <td>diabetes=yes AND activity=low</td>
+    <td><span class="badge badge-red">0.75</span></td>
+    <td>Look AHEAD trial — 35–45% lower CVD mortality</td>
+  </tr>
+  <tr>
+    <td><strong>Recovery Deficit</strong></td>
+    <td>stress=high AND sleep=poor</td>
+    <td><span class="badge badge-red">0.72</span></td>
+    <td>40–60% hypertension risk increase</td>
+  </tr>
+  <tr>
+    <td><strong>Exertional Intolerance</strong></td>
+    <td>exertion=strained</td>
+    <td><span class="badge badge-yellow">0.70</span></td>
+    <td>Reduced cardiac reserve indicator</td>
+  </tr>
+  <tr>
+    <td><strong>Inflammatory Load</strong></td>
+    <td>diet=frequent AND activity=low AND glucose≥100</td>
+    <td><span class="badge badge-yellow">0.68</span></td>
+    <td>Leading modifiable pathway to T2D and CAD</td>
+  </tr>
+  <tr>
+    <td><strong>Lipid Burden</strong></td>
+    <td>cholesterol≥240 AND diet=frequent</td>
+    <td><span class="badge badge-yellow">0.62</span></td>
+    <td>Dietary saturated fat driving LDL elevation</td>
+  </tr>
+  <tr>
+    <td><strong>Sleep-BP Connection</strong></td>
+    <td>sleep=poor AND systolic≥130</td>
+    <td><span class="badge badge-yellow">0.60</span></td>
+    <td>MAPEC study — 20–30% higher CVD risk</td>
+  </tr>
+  <tr>
+    <td><strong>Stress-Eating</strong></td>
+    <td>diet=frequent AND stress=high</td>
+    <td><span class="badge badge-yellow">0.58</span></td>
+    <td>Cortisol-driven visceral fat accumulation</td>
+  </tr>
+  <tr>
+    <td><strong>Sedentary Basic</strong></td>
+    <td>activity=low AND sitting=high</td>
+    <td><span class="badge badge-yellow">0.55</span></td>
+    <td>Ekelund et al., Lancet 2016</td>
+  </tr>
+  <tr>
+    <td><strong>Age + Family Convergence</strong></td>
+    <td>age≥50 AND family_history=yes</td>
+    <td><span class="badge badge-yellow">0.50</span></td>
+    <td>~2x baseline population risk</td>
+  </tr>
+</table>
+
+<h3>8.2 Pattern Detection Flow</h3>
+
+<div class="flow-diagram">
+  <div class="flow-box flow-start">User Form Data</div>
+  <div class="flow-arrow flow-arrow-down"></div>
+  <div class="flow-box flow-process">Test all 12 pattern rules<br><small>signalAnalyzer.js / models.py</small></div>
+  <div class="flow-arrow flow-arrow-down"></div>
+  <div class="flow-box flow-decision">Sort by severity (desc)</div>
+  <div class="flow-arrow flow-arrow-down"></div>
+  <div class="flow-row">
+    <div class="flow-box flow-output">Primary Issue<br><small>Highest severity match</small></div>
+    <div class="flow-box flow-process">Secondary Issue<br><small>2nd highest match</small></div>
+  </div>
+  <div class="flow-arrow flow-arrow-down"></div>
+  <div class="flow-box flow-end">Narrative Generation<br><small>Cause + Projection + Action</small></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- 9. RISK ENGINE -->
+<!-- ═══════════════════════════════════════════════════ -->
+
+<h2 id="risk-engine" class="page-break">9. Risk Scoring Engine</h2>
+
+<h3>9.1 Four-Component Scoring</h3>
+<p>The final risk score is a weighted combination of four independent scoring systems:</p>
+
+<table>
+  <tr><th>Component</th><th>Source</th><th>What It Measures</th></tr>
+  <tr>
+    <td><strong>ML Score</strong></td>
+    <td>Stacked ensemble (XGBoost, LightGBM, CatBoost, RF, LR)</td>
+    <td>Pattern-based prediction from training data</td>
+  </tr>
+  <tr>
+    <td><strong>Rule Score</strong></td>
+    <td>Clinical threshold logic</td>
+    <td>Deterministic scoring from medical standards</td>
+  </tr>
+  <tr>
+    <td><strong>Lifestyle Score</strong></td>
+    <td>Points-based system</td>
+    <td>Activity, sitting, stress, sleep, diet, exertion</td>
+  </tr>
+  <tr>
+    <td><strong>Personalization Score</strong></td>
+    <td>Cross-signal pattern detection</td>
+    <td>Compound risk from intersecting signals</td>
+  </tr>
+</table>
+
+<h3>9.2 Dynamic Weight Fusion</h3>
+<p>Component weights shift based on assessment confidence (determined by how much clinical data is available):</p>
+
+<pre>
+if confidence ≥ 70%:   ML=0.42  Rule=0.30  Life=0.16  Pers=0.12
+if confidence 45–69%:  ML=0.38  Rule=0.28  Life=0.20  Pers=0.14
+if confidence &lt;45%:    ML=0.34  Rule=0.22  Life=0.28  Pers=0.16
+
+risk_score = wML × ml + wRule × rule + wLife × life + wPers × personalization
+risk_score = clamp(0, 100, round(risk_score))
+</pre>
+
+<h3>9.3 Risk Level Classification</h3>
+<table>
+  <tr><th>Score Range</th><th>Level</th><th>Action Guidance</th></tr>
+  <tr><td>0–4</td><td><span class="badge badge-green">Low</span></td><td>Maintain current patterns, preventive checks</td></tr>
+  <tr><td>5–9</td><td><span class="badge badge-blue">Mild</span></td><td>Minor adjustments, monitor trends</td></tr>
+  <tr><td>10–19</td><td><span class="badge badge-yellow">Moderate</span></td><td>Targeted lifestyle changes, doctor check-in</td></tr>
+  <tr><td>20–29</td><td><span class="badge badge-red">High</span></td><td>Plan doctor visit, structured intervention</td></tr>
+  <tr><td>30+</td><td><span class="badge badge-red">Very High</span></td><td>Prompt medical consultation</td></tr>
+</table>
+
+<h3>9.4 Derived Metrics</h3>
+<ul>
+  <li><strong>Heart Age</strong> = max(actual_age, actual_age + (risk_score − 24) × 0.55)</li>
+  <li><strong>Heart Health Score</strong> = 100 − risk × 1.45 ± lifestyle bonuses/penalties (range: 18–96)</li>
+  <li><strong>6-Month Event Risk</strong> = 0.6 + risk × 0.12 + symptom_weight × 0.45</li>
+  <li><strong>3-Year Event Risk</strong> = 4 + risk × 0.72 + symptom_weight × 1.2</li>
+</ul>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- 10. OUTPUT SYSTEM -->
+<!-- ═══════════════════════════════════════════════════ -->
+
+<h2 id="output-system" class="page-break">10. Personalized Output System</h2>
+
+<h3>10.1 Result Tabs</h3>
+<table>
+  <tr><th>Tab</th><th>Contents</th><th>Personalization</th></tr>
+  <tr>
+    <td><strong>Overview</strong></td>
+    <td>Visual metrics, primary/secondary issues, daily story, protective factors</td>
+    <td>All content derived from detected patterns and clinical data</td>
+  </tr>
+  <tr>
+    <td><strong>Patterns</strong></td>
+    <td>Detected cross-signal patterns with severity badges, body signals, symptom watch</td>
+    <td>Each pattern has specific cause, trajectory, and action</td>
+  </tr>
+  <tr>
+    <td><strong>Clinical</strong></td>
+    <td>BP, cholesterol, glucose interpretations with AHA/ADA thresholds</td>
+    <td>Actual values compared to clinical standards with citations</td>
+  </tr>
+  <tr>
+    <td><strong>Actions</strong></td>
+    <td>Targeted suggestions, what-if simulations, food guidance, habit focus</td>
+    <td>Recommendations target the specific primary/secondary issues</td>
+  </tr>
+  <tr>
+    <td><strong>Deeper Look</strong></td>
+    <td>Follow-up questions, risk projection, care flags, doctor preparation</td>
+    <td>Symptom-specific followups refine the assessment in real-time</td>
+  </tr>
+</table>
+
+<h3>10.2 Response Structure (~40 fields)</h3>
+<pre>
+{
+  risk_score: 0–100,
+  risk_level: "Low" | "Mild" | "Moderate" | "High" | "Very High",
+  confidence: 30–100,
+  heart_age: number,
+  heart_health_score: 18–96,
+  narrative: { tone, condition, projection, confidence_text },
+  primary_issue: { id, severity, label, cause, projection, action, actionTimeline },
+  secondary_issue: { ... } | null,
+  detected_patterns: [...],
+  clinical_interpretations: { bp, cholesterol, glucose, triglycerides },
+  heart_attack_scenario: { six_month_percent, three_year_percent, label, summary },
+  visual_metrics: [{ id, label, value, tone }],
+  explanations: [{ headline, detail, magnitude }],
+  simulations: [{ id, title, summary, risk_score, delta }],
+  suggestions: [{ tag, title, body }],
+  food_guidance: { lean_into: [...], ease_off: [...] },
+  daily_story: [...],
+  possible_body_signals: [...],
+  symptom_watch: [...],
+  habit_focus: [...],
+  doctor_visit_script: [...],
+  care_flags: [...],
+  followup_questions: [{ id, question, why }],
+  confirmed_signals: [...],
+  refinement_summary: string,
+  disclaimer: string
+}
+</pre>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- 11. FRONTEND -->
+<!-- ═══════════════════════════════════════════════════ -->
+
+<h2 id="frontend" class="page-break">11. Frontend UI/UX Architecture</h2>
+
+<h3>11.1 Design System</h3>
+<table>
+  <tr><th>Element</th><th>Specification</th></tr>
+  <tr><td>Background</td><td><code>#0a0b14</code> (deep navy) with indigo radial gradients</td></tr>
+  <tr><td>Primary Accent</td><td><code>#6366f1</code> (indigo) with gradient → <code>#a855f7</code> (purple)</td></tr>
+  <tr><td>Health Accent</td><td><code>#22d3ee</code> (cyan)</td></tr>
+  <tr><td>Success</td><td><code>#10b981</code> (emerald)</td></tr>
+  <tr><td>Warning</td><td><code>#f59e0b</code> (amber)</td></tr>
+  <tr><td>Danger</td><td><code>#ef4444</code> (red)</td></tr>
+  <tr><td>Typography</td><td>Headings: Inter 700/800. Body: DM Sans 400/500</td></tr>
+  <tr><td>Cards</td><td>Glassmorphism surface with <code>backdrop-filter: blur(20px)</code></td></tr>
+  <tr><td>Border Radius</td><td>sm: 0.75rem, md: 1.25rem, lg: 1.75rem, full: 999px</td></tr>
+</table>
+
+<h3>11.2 Screen State Machine</h3>
+
+<div class="flow-diagram">
+  <div class="flow-row">
+    <div class="flow-box flow-start">splash</div>
+    <span class="flow-arrow flow-arrow-right"></span>
+    <div class="flow-box flow-process">landing</div>
+    <span class="flow-arrow flow-arrow-right"></span>
+    <div class="flow-box flow-process">questions</div>
+    <span class="flow-arrow flow-arrow-right"></span>
+    <div class="flow-box flow-data">clinical</div>
+    <span class="flow-arrow flow-arrow-right"></span>
+    <div class="flow-box flow-process">loading</div>
+    <span class="flow-arrow flow-arrow-right"></span>
+    <div class="flow-box flow-output">result</div>
+  </div>
+</div>
+
+<h3>11.3 Visual Components</h3>
+<table>
+  <tr><th>Component</th><th>File</th><th>Purpose</th></tr>
+  <tr><td>ECGLine</td><td>illustrations.jsx</td><td>Animated SVG heartbeat trace (replaces flowers/vines)</td></tr>
+  <tr><td>PulseRing</td><td>illustrations.jsx</td><td>Rippling pulse animation for risk score display</td></tr>
+  <tr><td>StoryMeter</td><td>illustrations.jsx</td><td>Conic-gradient ring meter for risk visualization</td></tr>
+  <tr><td>StatusBadge</td><td>illustrations.jsx</td><td>Severity-colored pulsing dot indicator</td></tr>
+  <tr><td>ConfidenceIndicator</td><td>illustrations.jsx</td><td>Animated progress bar showing data confidence</td></tr>
+  <tr><td>QuestionGlyph</td><td>illustrations.jsx</td><td>Context-appropriate SVG icons per question category</td></tr>
+  <tr><td>Hero3DScene</td><td>scene3d.jsx</td><td>Three.js heart mesh with orbital rings and particles</td></tr>
+</table>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- 12. API REFERENCE -->
+<!-- ═══════════════════════════════════════════════════ -->
+
+<h2 id="api-reference" class="page-break">12. API Reference</h2>
+
+<h3>POST /api/predict</h3>
+<p>Primary assessment endpoint. Accepts user data and returns a full personalized assessment.</p>
+<h4>Request Body</h4>
+<pre>
+{
+  "consent": true,
+  "name": "John",              // optional
+  "age": 55,
+  "gender": "male",            // male | female | other
+  "smoking": "yes",            // yes | no
+  "diabetes": "no",            // yes | no
+  "family_history": "yes",     // yes | no
+  "activity_level": "low",     // low | medium | high
+  "sitting": "high",           // low | medium | high
+  "stress": "high",            // low | medium | high
+  "sleep_quality": "poor",     // poor | ok | good
+  "diet": "frequent",          // rare | moderate | frequent
+  "exertion_response": "strained",  // easy | noticeable | strained
+  "systolic_bp": 148,          // optional, 80–240
+  "diastolic_bp": 92,          // optional, 40–160
+  "cholesterol": 245,          // optional, 90–400
+  "hdl_cholesterol": 38,       // optional, 15–100
+  "ldl_cholesterol": null,     // optional, 40–300
+  "fasting_glucose": 135,      // optional, 50–400
+  "triglycerides": null         // optional, 30–600
+}
+</pre>
+
+<h3>POST /api/refine</h3>
+<p>Refine an existing assessment with follow-up symptom answers.</p>
+<h4>Request Body</h4>
+<pre>
+{
+  "payload": { /* same as /predict */ },
+  "answers": {
+    "chest_tightness": "yes",
+    "breathless_easy": "no",
+    "palpitations": "no"
+  }
+}
+</pre>
+
+<h3>POST /api/simulate</h3>
+<p>What-if scenario: simulate how lifestyle changes would affect risk score.</p>
+
+<h3>GET /api/history?limit=8</h3>
+<p>Retrieve recent assessment history from SQLite database.</p>
+
+<h3>GET /api/health</h3>
+<p>Server health check and model status.</p>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- 13. FALLBACK -->
+<!-- ═══════════════════════════════════════════════════ -->
+
+<h2 id="fallback">13. Offline Fallback Engine</h2>
+
+<p>When the backend is unavailable, <code>fallbackEngine.js</code> provides a complete client-side assessment that mirrors the backend's logic:</p>
+
+<ul>
+  <li><strong>4-component scoring</strong> — ML approximation, rule engine, lifestyle scorer, personalization</li>
+  <li><strong>Clinical interpretation</strong> — Same AHA/ADA/WHO thresholds as backend</li>
+  <li><strong>12 cross-signal patterns</strong> — Identical pattern detection rules</li>
+  <li><strong>Primary/secondary issue identification</strong> — Same severity-sorted logic</li>
+  <li><strong>Full narrative generation</strong> — Daily story, body signals, food guidance</li>
+  <li><strong>Follow-up refinement</strong> — Symptom-based score adjustment</li>
+  <li><strong>Local history</strong> — Stored in localStorage with 8-assessment cap</li>
+</ul>
+
+<div class="callout callout-success">
+  <strong>✅ Resilience guarantee:</strong>
+  The frontend will NEVER show an error to the user. If the API call fails, it transparently falls back to the client-side engine and produces a complete assessment.
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- 14. CONFIG -->
+<!-- ═══════════════════════════════════════════════════ -->
+
+<h2 id="config">14. Configuration &amp; Deployment</h2>
+
+<h3>14.1 Start Development</h3>
+<pre>
+# Frontend (Vite dev server)
+cd client
+npm run dev          → http://localhost:5173
+
+# Backend (FastAPI)
+cd ml_engine
+uvicorn app.main:app --reload --port 8000
+</pre>
+
+<h3>14.2 Production Build</h3>
+<pre>
+cd client
+npm run build        → outputs to client/dist/
+</pre>
+
+<h3>14.3 Environment Variables</h3>
+<table>
+  <tr><th>Variable</th><th>Default</th><th>Purpose</th></tr>
+  <tr><td><code>VITE_API_URL</code></td><td><code>/api</code></td><td>Backend API base URL (frontend)</td></tr>
+  <tr><td><code>DATABASE_PATH</code></td><td><code>ml_engine/data/heart_risk_history.db</code></td><td>SQLite database location (backend)</td></tr>
+</table>
+
+<h3>14.4 Dependencies</h3>
+<h4>Frontend</h4>
+<p>react, react-dom, motion (framer-motion), @react-three/fiber, @react-three/drei, three</p>
+
+<h4>Backend</h4>
+<p>fastapi, uvicorn, pydantic, scikit-learn, xgboost, lightgbm, catboost, numpy, pandas</p>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- 15. CHANGELOG -->
+<!-- ═══════════════════════════════════════════════════ -->
+
+<h2 id="changelog" class="page-break">15. Changelog (v1 → v2)</h2>
+
+<table>
+  <tr><th>Area</th><th>v1 (Before)</th><th>v2 (After)</th></tr>
+  <tr>
+    <td><strong>Questioning</strong></td>
+    <td>Fixed static questions, same for every user</td>
+    <td>Dynamic adaptive path with conditional branching</td>
+  </tr>
+  <tr>
+    <td><strong>Clinical Data</strong></td>
+    <td>Only systolic BP and total cholesterol</td>
+    <td>7 clinical fields: BP (sys/dia), cholesterol (total/HDL/LDL), glucose, triglycerides</td>
+  </tr>
+  <tr>
+    <td><strong>Thresholds</strong></td>
+    <td>Arbitrary point values with no medical backing</td>
+    <td>Real AHA/ACC/ADA/ATP-III/WHO published thresholds</td>
+  </tr>
+  <tr>
+    <td><strong>Pattern Detection</strong></td>
+    <td>None — independent factor scoring only</td>
+    <td>12 cross-signal patterns with severity, cause, trajectory, action</td>
+  </tr>
+  <tr>
+    <td><strong>Scoring</strong></td>
+    <td>Single point-sum model</td>
+    <td>4-component dynamic-weight fusion (ML + Rule + Lifestyle + Personalization)</td>
+  </tr>
+  <tr>
+    <td><strong>Confidence</strong></td>
+    <td>Not tracked</td>
+    <td>Computed from data completeness (30–100%), shown to user</td>
+  </tr>
+  <tr>
+    <td><strong>Output</strong></td>
+    <td>Generic template advice, same for similar inputs</td>
+    <td>Primary/secondary issue identification, causal narratives, projections, targeted actions with timelines</td>
+  </tr>
+  <tr>
+    <td><strong>Sensitivity</strong></td>
+    <td>Small input changes produce identical outputs</td>
+    <td>Every clinical value shift changes interpretations, patterns, and recommendations</td>
+  </tr>
+  <tr>
+    <td><strong>Refinement</strong></td>
+    <td>One-shot assessment only</td>
+    <td>Follow-up symptom questions refine the assessment in-place</td>
+  </tr>
+  <tr>
+    <td><strong>UI Design</strong></td>
+    <td>Decorative flowers, vines, tulips, roses, bubbles</td>
+    <td>Medical-grade: ECG traces, pulse rings, severity badges, confidence indicators</td>
+  </tr>
+  <tr>
+    <td><strong>Typography</strong></td>
+    <td>Browser defaults</td>
+    <td>Inter 700/800 headings, DM Sans body text</td>
+  </tr>
+  <tr>
+    <td><strong>Color Palette</strong></td>
+    <td>Mixed warm tones</td>
+    <td>Deep navy (#0a0b14) + indigo (#6366f1) + cyan (#22d3ee) professional palette</td>
+  </tr>
+  <tr>
+    <td><strong>Fallback</strong></td>
+    <td>Simple error message on API failure</td>
+    <td>Full client-side assessment engine (500+ lines) mirrors backend completely</td>
+  </tr>
+</table>
+
+<hr>
+
+<div class="callout callout-warning">
+  <strong>⚠️ Medical Disclaimer</strong>
+  Beatly is an awareness and prevention guidance tool. It is NOT a medical diagnosis. All assessed individuals should consult healthcare professionals for clinical decisions. Risk scores, projections, and recommendations are based on population-level statistical models and may not reflect individual outcomes.
+</div>
+
+<hr>
+<p style="text-align: center; color: var(--text-secondary); font-size: 9pt; margin-top: 24px;">
+  Beatly Cardiovascular Assessment Engine v2.0 — Technical Documentation<br>
+  Generated April 2026
+</p>
+
+</body>
+</html>

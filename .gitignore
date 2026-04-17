@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.vite/
+__pycache__/
+*.pyc
+.DS_Store
+.env
+.env.local
+ml_engine/data/heart_risk_history.db
+ml_engine/.mplconfig/
