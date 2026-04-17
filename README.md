@@ -1,6 +1,6 @@
-# HeartRisk+
+# Beatly
 
-HeartRisk+ is a full-stack heart-risk experience built from the attached project documents.
+Beatly is a full-stack heart-risk experience built from the attached project documents.
 
 - `client`: React + Vite premium assessment experience with animated illustrations, guided questions, simulations, and tracking.
 - `server`: lightweight Node proxy/BFF for local development and frontend integration.
