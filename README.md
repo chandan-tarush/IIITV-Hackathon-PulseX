@@ -1,252 +1,288 @@
-# Beatly / HeartRisk+
+# 🚀 Beatly — AI Cardiovascular Risk Assessment Engine
 
-Beatly is a cardiovascular assessment product with:
+> A full-stack, intelligent cardiovascular assessment system combining **machine learning, clinical logic, and adaptive questioning** to deliver personalized and explainable health insights.
 
-- A React + Vite patient-facing app
-- A FastAPI ML and rules engine for scoring and clinical interpretation
-- A lightweight Node server that handles grounded report writing, adaptive intake phrasing, and assistant chat
+---
 
-The diagnosis path is intentionally **not LLM-driven**. Core scoring, thresholds, and risk classification stay in the ML/rule engine. LLM features are used only for:
+## 🧠 Why Beatly?
 
-- Intake question phrasing
-- Rich report writing after scoring
-- Conversational explanation of already-grounded findings
+Most health tools are static.
 
-## What Changed
+Beatly behaves like an **intelligent diagnostic assistant** that:
 
-The current build includes:
+- Adapts questions dynamically in real time  
+- Understands relationships between lifestyle, clinical, and behavioral signals  
+- Combines ML predictions with rule-based medical logic  
+- Generates explainable, doctor-style outputs  
+- Works even in degraded/offline environments  
 
-- Adaptive intake tiles that wait for the refined prompt before rendering
-- Dynamic question ordering based on prior answers
-- English, Hindi, and Hinglish UI options
-- Per-section report audio controls
-- Confidence-rated result sections
-- Server-generated doctor-style narratives grounded in assessment output
-- Loading states for slow generation steps
+---
 
-## Architecture
+## 🆕 What’s New (Current Version)
 
-### 1. Client
+- Adaptive intake tiles 
+- Dynamic question ordering based on responses  
+- Multilingual UI (English, Hindi, Hinglish)  
+- intelligence based-generated doctor-style reports (grounded, not hallucinated)  
+- Confidence-rated result sections  
+- Section-wise audio playback  
+- Chat assistant for explanation of results  
+- Improved loading states for heavy computations  
 
-Path: `client/`
+---
 
-Main responsibilities:
+## 🏗️ System Architecture
 
-- Intake flow and adaptive question rendering
-- Optional clinical/lab input
-- Result tabs and section-level audio playback
-- Chat assistant UI
-- Offline fallback when backend calls fail
+![Architecture](./assets/architecture-diagram.png)
 
-Important files:
+A modular full-stack system:
 
-- `client/src/App.jsx`
-- `client/src/data.js`
-- `client/src/questionEngine.js`
-- `client/src/adaptiveInterview.js`
-- `client/src/ReportNarratives.jsx`
-- `client/src/ChatBot.jsx`
-- `client/src/fallbackEngine.js`
-- `client/src/i18n.js`
+- **Frontend** → React + Vite (UI, adaptive flow, visualization)  
+- **Node Server** → Proxy + LLM orchestration + report generation  
+- **ML Engine** → FastAPI (core scoring + clinical interpretation)  
+- **Storage** → SQLite (history tracking)  
 
-### 2. Node server
+---
 
-Path: `server/`
+## 🔄 How It Works
 
-Main responsibilities:
+![System Flow](./assets/system-flow.png)
 
-- Proxy requests to the ML engine
-- Call the configured Groq model for:
-  - `/api/intake-question`
-  - `/api/report`
-  - `/api/assistant`
-  - `/api/insights`
-- Enforce grounding prompts so the model explains findings instead of inventing diagnoses
+1. User enters basic details  
+2. Adaptive questioning begins  
+3. Optional clinical inputs improve accuracy  
+4. ML + rule engine processes signals  
+5. Risk score + insights generated  
+6. Follow-up refinement improves precision  
+7. LLM generates grounded explanation (not diagnosis)  
 
-Important file:
+---
 
-- `server/index.js`
+## ⚙️ Intelligence Pipeline
 
-### 3. ML engine
+![Backend Pipeline](./assets/backend-pipeline.png)
 
-Path: `ml_engine/`
+Each assessment flows through:
 
-Main responsibilities:
+- Input validation  
+- ML ensemble prediction  
+- Clinical rule evaluation  
+- Lifestyle scoring  
+- Cross-signal pattern detection  
+- Dynamic weighting  
+- Narrative generation  
 
-- Input validation
-- Model inference
-- Rule-based clinical interpretation
-- Risk score and risk level generation
-- Follow-up refinement
-- Assessment history storage
+---
 
-Important files:
+## 🧠 Adaptive Question Engine
 
-- `ml_engine/app/main.py`
-- `ml_engine/app/models.py`
-- `ml_engine/app/clinical_interpreter.py`
-- `ml_engine/app/config.py`
-- `ml_engine/app/schemas.py`
-- `ml_engine/app/database.py`
+![Question Logic](./assets/question-logic.png)
 
-## Medical Positioning
+- No fixed forms  
+- Context-aware branching  
+- Questions evolve after every answer  
 
-This project is an awareness and decision-support product, not a medical device.
+👉 Example:  
+Low activity + high sitting → deeper probing of stress and recovery  
 
-Current medical design:
+---
 
-- Core risk scoring stays in the non-LLM path
-- Published-style thresholds and deterministic clinical checks remain in the backend logic
-- LLM output is constrained to explanation, intake phrasing, and narrative generation
-- Weak sections should be omitted rather than padded with generic text
+## 🔍 Pattern Detection System
 
-Important caveat:
+![Pattern Detection](./assets/pattern-detection.png)
 
-- The ML layer is still software, not a clinically validated regulated diagnostic system
-- Generated narratives should be treated as grounded explanation of model output, not new diagnosis
+Detects hidden health patterns using:
 
-## Language Support
+- Lifestyle signals  
+- Clinical inputs  
+- Behavioral trends  
 
-Supported interface modes:
+Each pattern includes:
+- Severity  
+- Cause  
+- Risk trajectory  
+- Actionable recommendations  
 
-- `en` for English
-- `hi` for Devanagari Hindi
-- `hinglish` for Roman-script Hinglish
+---
 
-Notes:
+## 📊 Risk Scoring Model
 
-- `client/src/i18n.js` contains the primary UI dictionary
-- Legacy mojibake repair is handled in the localization layer so older broken strings do not leak to the UI
-- Hindi should always render in Devanagari, never Roman script
+![Risk Scoring](./assets/risk-scoring.png)
 
-## API Surface
+Final score combines:
 
-### ML / proxy routes
+- ML prediction  
+- Clinical thresholds  
+- Lifestyle scoring  
+- Pattern-based adjustments  
 
-- `GET /api/health`
-- `GET /api/history`
-- `POST /api/predict`
-- `POST /api/refine`
-- `POST /api/simulate`
+👉 Weights dynamically adapt based on data confidence  
 
-### LLM-backed grounded routes
+---
 
-- `POST /api/intake-question`
-- `POST /api/report`
-- `POST /api/assistant`
-- `POST /api/insights`
+## 📈 Risk Levels
 
-## Environment Variables
+![Risk Levels](./assets/risk-levels.png)
 
-### Frontend
+| Score | Level |
+|------|------|
+| 0–4 | Low |
+| 5–9 | Mild |
+| 10–19 | Moderate |
+| 20–29 | High |
+| 30+ | Very High |
 
-- `VITE_API_URL`
-  - Default: `/api`
-  - Used by the React app to call the server
+---
 
-### Node server
+## 📦 Output System
 
-- `PORT`
-  - Default: `3001`
-- `ML_ENGINE_URL`
-  - Default: `http://127.0.0.1:8000`
-- `GROQ_API_KEY`
-  - Required for live intake/report/chat generation
-- `GROQ_MODEL`
-  - Default: `llama-3.3-70b-versatile`
+![Output System](./assets/output-system.png)
 
-## Local Development
+Beatly delivers:
 
-### 1. Install JS dependencies
+- Primary & secondary risk insights  
+- Clinical interpretation  
+- Personalized recommendations  
+- “What-if” simulations  
+- Follow-up refinement  
+- AI-generated narrative reports  
+
+---
+
+## 🤖 AI + ML Design Philosophy
+
+**Critical principle: Diagnosis is NOT LLM-driven**
+
+### ML / Rule Engine (Core)
+- Risk scoring  
+- Clinical thresholds  
+- Deterministic logic  
+- Pattern detection  
+
+### LLM (Controlled Usage)
+- Intake question phrasing  
+- Report writing (post-analysis)  
+- Conversational explanation  
+
+👉 The model explains results — it does NOT generate them.
+
+---
+
+## 🌐 Language Support
+
+- English (`en`)  
+- Hindi (`hi`)  
+- Hinglish (`hinglish`)  
+
+✔ Hindi rendered in Devanagari  
+✔ Localization handled via `i18n.js`
+
+---
+
+## 📴 Offline Fallback
+
+If backend fails:
+
+- Assessment runs fully on frontend  
+- Scoring logic replicated  
+- No interruption to user experience  
+
+---
+
+## 🔌 API Endpoints
+
+### Core Assessment
+
+- `POST /api/predict` → Main assessment  
+- `POST /api/refine` → Follow-up refinement  
+- `GET /api/history` → Previous results  
+- `GET /api/health` → System status  
+- `POST /api/simulate` → What-if simulation  
+
+### LLM-backed (Grounded)
+
+- `POST /api/intake-question`  
+- `POST /api/report`  
+- `POST /api/assistant`  
+- `POST /api/insights`  
+
+---
+
+## 📁 Project Structure
+
+```
+client/        → React frontend  
+server/        → Node proxy + LLM orchestration  
+ml_engine/     → FastAPI + ML pipeline  
+assets/        → diagrams & visuals  
+```
+
+---
+
+## ⚙️ Run Locally
 
 ```bash
 npm install
-```
-
-### 2. Install Python dependencies
-
-```bash
 python -m pip install -r ml_engine/requirements.txt
-```
-
-### 3. Start the ML engine
-
-```bash
 python -m uvicorn ml_engine.app.main:app --reload --port 8000
-```
-
-### 4. Start the Node server
-
-```bash
 npm --workspace server run dev
-```
-
-### 5. Start the client
-
-```bash
 npm --workspace client run dev
 ```
 
-## Production / Deployment
+---
 
-Recommended deployment shape:
+## 🔐 Environment Variables
 
 ### Frontend
+- `VITE_API_URL=/api`
 
-- Build with `npm --workspace client run build`
-- Serve `client/dist`
+### Server
+- `PORT=3001`
+- `ML_ENGINE_URL=http://127.0.0.1:8000`
+- `GROQ_API_KEY=your_key`
+- `GROQ_MODEL=llama-3.3-70b-versatile`
 
-### Node server
+---
 
-- Run `npm --workspace server run start`
-- Set `PORT`, `ML_ENGINE_URL`, `GROQ_API_KEY`, and optionally `GROQ_MODEL`
+## 🚀 Deployment Overview
 
-### ML engine
+- Frontend → static build (`client/dist`)  
+- Server → Node runtime  
+- ML Engine → FastAPI service  
+- Reverse proxy routes `/api/*`  
 
-- Run FastAPI separately behind an internal URL
-- Point `ML_ENGINE_URL` at that internal service
+---
 
-### Reverse proxy
+## 🔊 Audio System
 
-Recommended:
+- Browser-based speech synthesis  
+- Section-wise playback  
+- Best experience with proper system voices  
 
-- Frontend served on the main domain
-- `/api/*` forwarded to the Node server
-- Node server forwards scoring calls to FastAPI
+---
 
-## Security Note
+## ⚠️ Limitations
 
-If a model key was ever exposed in the frontend at any point, rotate it.
+- Not a clinically validated diagnostic tool  
+- Voice quality depends on device/browser  
+- LLM output is constrained but not perfect  
+- Requires proper API key setup for full features  
 
-Best practice now:
+---
 
-- Keep `GROQ_API_KEY` only on the server
-- Never ship provider keys in the React bundle
+## 📄 Detailed Documentation
 
-## Audio / Speech
+👉 [View Complete Documentation](./Beatly_Documentation.html)
 
-The app uses browser speech synthesis for section playback.
+---
 
-Important behavior:
+## ⚠️ Disclaimer
 
-- Voice quality depends on the voices installed in the user’s OS/browser
-- Hindi playback works best when a proper `hi-IN` voice is available
-- Each report section has its own listen button
+This system is for **awareness and educational purposes only**.  
+It is NOT a substitute for professional medical advice.
 
-## Documentation
+---
 
-Full deploy-oriented documentation is available in:
+## 👤 Author
 
-- `Beatly_Documentation.html`
-
-It is designed to be readable on desktop and mobile after deployment.
-
-## Current Limitations
-
-- Voice quality is browser-dependent
-- LLM narratives are grounded, but still not a substitute for clinician review
-- The product has not been verified here by running tests or builds in this pass
-
-## License / Ownership
-
-Project ownership and licensing should be filled in by the team before public release.
+chandan
